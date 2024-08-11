@@ -15,16 +15,11 @@ app.set(express.static(path.join(__dirname, 'views')));
 const fs = require('fs').promises;
 const libre = require('libreoffice-convert');
 libre.convertAsync = require('util').promisify(libre.convert);
+const generateRandomStringWithChars = require('./utils/generateRandomString')
 
 // Current file's directory
 const currentDir = __dirname;
-// Navigate backward to the parent directory
 const rootDir = currentDir 
-// path.join(currentDir, '..');
-// const inputPath = path.join(rootDir, '/' + 'uploads/1723321498968-141037750Naukri_MOHDSHAHBAZ[5y_0m]-exp.docx');
-// console.log(inputPath)
-// return;
-const generateRandomStringWithChars = require('./utils/generateRandomString')
 const main = async (file) => {
     const ext = 'pdf'; // Output extension.
     const inputPath = path.join(rootDir, '/' + file);
@@ -41,11 +36,12 @@ const main = async (file) => {
     // console.log(docxBuf.toString());
     // Convert to PDF format with an undefined filter.
     let pdfBuf = await libre.convertAsync(docxBuf, ext, undefined);
-    await fs.writeFile(outputPath, pdfBuf);
-    fs.unlink(inputPath);
+    if( pdfBuf ){
+        await fs.writeFile(outputPath, pdfBuf);
+        fs.unlink(inputPath);
+    }
     return fileName;
 }
-// module.exports = pdfConvert;
 
 
 app.get('/', (req, res) => {
@@ -60,15 +56,6 @@ app.post('/savefile', upload.single('file'), async (req, res) => {
     }
 
     let imagePath = req.file.path
-    let description = req.body.description
-
-
-    // Save this data to a database probably
-
-    // console.log(description, imagePath);
-
-    // imagePath = imagePath.replace('uploads/', '')
-    // res.redirect('images/'+imagePath)
     const data = await main(imagePath).catch(function (err) {
         console.log(`Error converting file: ${err}`);
         res.render('fileuploadTemplate.ejs', { success: false, downloadFile: 'not uploaded' });
