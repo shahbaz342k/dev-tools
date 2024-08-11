@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doe </title>
+</head>
+<body>
+     <!-- create a form to upload an image jpeg with a description -->
+  <form action="/savefile" method="post" enctype="multipart/form-data">
+   
+    <input type="file" name="file"  id="fileInput" accept=".docx, .doc" style="opacity: 1;">
+    <!-- <label for="fileInput" class="button" 
+    style="background: #0450d5;
+          color: white;
+          line-height: 1.2;
+          padding: 15px;
+          border-radius: 4px;
+          cursor: pointer;">
+ + Upload File
+</label> -->
+    <button type="submit" name="submit" id="submit">UPLOAD</button>
+  </form>
+
+  <% if(success){ %>
+    <h1>uploaded</h1>
+    <a href="uploaded/<%= downloadFile %>">Download</a>
+  <% } %>  
+
+  <div id="message"></div>
+  <div id="status"></div>
+
+  <script>
+    document.getElementById('submit').addEventListener('click', function(event){
+        console.log('submit');
+        let status = document.getElementById('status');
+        let submitBtn = document.getElementById('submit');
+        // submitBtn.setAttribute('disabled', 'disabled');
+        status.innerHTML = "Please wait...";
+
+
+    });
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+      let files = event.target.files;
+      let messageDiv = document.getElementById('message');
+      let submitBtn = document.getElementById('submit');
+      submitBtn.removeAttribute('disabled');
+
+      
+      messageDiv.innerHTML = ''; // Clear previous messages
+  
+      for (let i = 0; i < files.length; i++) {
+        var file = files[i];
+  
+        // Check if file size exceeds 1MB
+        if (file.size > 1048576) { // 1MB in bytes
+          submitBtn.setAttribute('disabled', 'disabled');
+          messageDiv.innerHTML += `<p>${file.name} is too big! Maximum file size is 1MB.</p>`;
+          this.value = ''; // Clear the field
+          // Optionally, you can break the loop if you don't want to process any files if one fails
+          // break;
+        }
+      }
+  
+      if (messageDiv.innerHTML === '') {
+        messageDiv.innerHTML = '<p>All files are within the size limit.</p>';
+      }
+    });
+  </script>
+</body>
+</html>
